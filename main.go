@@ -1,22 +1,29 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/taufik-hdyt/go-crud/controllers/catgoerycontroller"
-	"github.com/taufik-hdyt/go-crud/controllers/foodcontroller"
-	"github.com/taufik-hdyt/go-crud/models"
+
+	"github.com/taufik-hdyt/go-crud/config"
+	middleware "github.com/taufik-hdyt/go-crud/middlewares"
+	"github.com/taufik-hdyt/go-crud/routes"
 )
 
 func main() {
 	r := gin.Default()
-	models.ConnectDataBase()
+	config.ConnectDatabase()
+	r.Use(middleware.DBMiddleware(config.DB))
 
-	r.GET("/api/foods", foodcontroller.GetAll)
-	r.GET("/api/food/:id", foodcontroller.GetOne)
-	r.POST("/api/food", foodcontroller.CreateRecipe)
+	routes.UserRoutes(r)
+	routes.AuthRoutes(r)
 
-	//catgeory
-	r.GET("/api/categories", catgoerycontroller.GetCategories)
-	r.POST("/api/categori", catgoerycontroller.CreateCategory)
-	r.Run()
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "success",
+			"message": "Server berjalan dan database sudah connect ✅",
+		})
+	})
+
+	r.Run(":8080")
 }
