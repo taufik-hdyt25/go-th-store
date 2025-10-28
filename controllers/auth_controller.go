@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -13,9 +14,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtKey = []byte(os.Getenv("JWT_SECRET")) // contoh: set di .env JWT_SECRET=mysecretkey
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
-// REGISTER
 func Register(c *gin.Context) {
 	var input struct {
 		Name     string `json:"name" binding:"required"`
@@ -50,7 +50,6 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Registrasi berhasil", "user": user})
 }
 
-// LOGIN
 func Login(c *gin.Context) {
 	var input struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -88,5 +87,25 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login berhasil",
 		"token":   tokenString,
+	})
+}
+
+func ProfileMe(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	fmt.Println(userID)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User tidak ditemukan di context"})
+		return
+	}
+
+	var user models.User
+	if err := config.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Berhasil ambil profil",
+		"user":    user,
 	})
 }
