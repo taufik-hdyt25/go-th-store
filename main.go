@@ -15,15 +15,18 @@ func main() {
 	config.ConnectDatabase()
 	r.Use(middleware.DBMiddleware(config.DB))
 
-	routes.UserRoutes(r)
-	routes.AuthRoutes(r)
-
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "success",
 			"message": "Server berjalan dan database sudah connect ✅",
 		})
 	})
+
+	// routes
+	routes.UserRoutes(r)
+	routes.AuthRoutes(r)
+	routes.CategoryRoutes(r)
+	routes.ProductRoutes(r)
 
 	r.Run(":8080")
 }

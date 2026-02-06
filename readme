@@ -1,0 +1,6 @@
+
+
+
+
+1. brew services start mysql || mysql.server start
+2. go run main.go
