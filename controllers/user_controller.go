@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/taufik-hdyt/go-crud/config"
+	"github.com/taufik-hdyt/go-crud/helpers"
 	"github.com/taufik-hdyt/go-crud/models"
 	"gorm.io/gorm"
 )
@@ -15,7 +16,7 @@ func GetUsers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": users})
+	helpers.Success(c, "Data berhasil dimuat", "data",users)
 }
 
 func GetUser(c *gin.Context) {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/taufik-hdyt/go-crud/config"
+	"github.com/taufik-hdyt/go-crud/helpers"
 	"github.com/taufik-hdyt/go-crud/models"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -62,50 +63,43 @@ func Login(c *gin.Context) {
 
 	var user models.User
 	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email tidak ditemukan"})
+		helpers.Error(c, http.StatusUnauthorized, "Email tidak ditemukan")
 		return
 	}
 
 	// Verifikasi password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Password salah"})
+		helpers.Error(c, http.StatusUnauthorized, "Password salah")
 		return
 	}
 
 	// Buat JWT token
+	secret := os.Getenv("JWT_SECRET")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"exp":     time.Now().Add(time.Hour * 24).Unix(), // berlaku 24 jam
 	})
-
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat token"})
+		helpers.Error(c, http.StatusInternalServerError, "Gagal membuat token")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Login berhasil",
-		"token":   tokenString,
-	})
+	helpers.Success(c, "Login berhasil","token", tokenString)
 }
 
 func ProfileMe(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	fmt.Println(userID)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User tidak ditemukan di context"})
+		helpers.Error(c, http.StatusNotFound, "User tidak ditemukan di context")
 		return
 	}
 
 	var user models.User
 	if err := config.DB.First(&user, userID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
+		helpers.Error(c, http.StatusNotFound, "User tidak ditemukan")
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Berhasil ambil profil",
-		"user":    user,
-	})
+		helpers.Success(c, "Login berhasil","user", user)
 }

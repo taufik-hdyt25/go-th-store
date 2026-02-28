@@ -6,7 +6,7 @@ import (
 	middleware "github.com/taufik-hdyt/go-crud/middlewares"
 )
 
-func CategoryRoutes(r *gin.Engine) {
+func CategoryRoutes(r *gin.RouterGroup) {
 	category := r.Group("/category")
 	category.Use(middleware.AuthMiddleware())
 	{

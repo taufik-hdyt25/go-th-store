@@ -29,10 +29,11 @@ func main() {
 	})
 
 	// routes
-	routes.UserRoutes(r)
-	routes.AuthRoutes(r)
-	routes.CategoryRoutes(r)
-	routes.ProductRoutes(r)
+	api := r.Group("/api")
+	routes.AuthRoutes(api)
+	routes.UserRoutes(api)
+	routes.CategoryRoutes(api)
+	routes.ProductRoutes(api)
 
 	r.Run(":8080")
 }

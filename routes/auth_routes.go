@@ -6,7 +6,7 @@ import (
 	middleware "github.com/taufik-hdyt/go-crud/middlewares"
 )
 
-func AuthRoutes(r *gin.Engine) {
+func AuthRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/auth")
 	auth.POST("/login", controllers.Login)
 	auth.POST("/register", controllers.Register)
